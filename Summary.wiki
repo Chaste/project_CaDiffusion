@@ -8,7 +8,7 @@ edit that file, don't edit this page on trac!
 
 Welcome to the Chaste wiki.
 
-This section contains pages generated automatically from the source code accompanying Capel et al. (2014).
+This section contains pages generated automatically from the source code accompanying Samanta et al. (2015).
 
 Before running these examples you will need to [wiki:InstallGuides/InstallGuide install Chaste's dependencies] 
 and the [http://www.cs.ox.ac.uk/chaste/download.html source code for version 3.3].
@@ -25,9 +25,18 @@ The steps required to reproduce the study are given in the following tutorial fi
 
 == Sample commands to run everything ==
 
+If you wish to install Chaste and this project direct from our repository, you may do so from the command line as follows:
+{{{
+#!sh
+cd <path/to>
+svn checkout https://chaste.cs.ox.ac.uk/svn/chaste/trunk Chaste
+cd Chaste/projects
+svn checkout https://chaste.cs.ox.ac.uk/svn/chaste/projects/CaDiffusion
+}}}
+
 To run the simulations, use:
 {{{
 #!sh
-cd <path/to/Chaste>
+cd <path/to>/Chaste
 scons chaste_libs=1 brief=1 build=GccOptNative projects/CaDiffusion
 }}}

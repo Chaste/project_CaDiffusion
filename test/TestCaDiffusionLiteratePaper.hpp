@@ -33,6 +33,12 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+/*
+ * = Calcium diffusion from CRAC channels in a microdomain =
+ *
+ * Code to accompany the paper Samanta et al. 2015.
+ */
+
 #ifndef TESTCADIFFUSION_HPP_
 #define TESTCADIFFUSION_HPP_
 
@@ -50,8 +56,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "PetscSetupAndFinalize.hpp"
 
-/**
- * A diffusion equation with a source term
+/*
+ * == Set up a diffusion equation with a source term ==
  *
  * d[Ca]/dt = D_Ca Laplacian([Ca]) + Q
  *
@@ -151,101 +157,14 @@ public:
     }
 };
 
-///**
-// * Steady state linear heat equation.
-// * Has source term and identity diffusion term.
-// */
-//template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-//class PoissonEquationWithSourceTerm : public AbstractLinearEllipticPde<ELEMENT_DIM,SPACE_DIM>
-//{
-//    const std::vector<c_vector<double, SPACE_DIM> >& mrChannelLocations;
-//
-//    /** The elements that are source elements */
-//    std::vector<std::vector<unsigned> > mElementsEachChannel;
-//
-//    std::vector<double> mConcentrationSourcePerUnitVolume; // in units of uM / us
-//
-//public:
-//    PoissonEquationWithSourceTerm(AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh,
-//                                  const std::vector<c_vector<double, SPACE_DIM> >& rChannelLocations)
-//     : AbstractLinearEllipticPde<SPACE_DIM,SPACE_DIM>(),
-//       mrChannelLocations(rChannelLocations)
-//    {
-//        // We're going to work out the total volume of the elements that are going to have a source term
-//        // in them here.
-//        std::vector<double> source_volumes(mrChannelLocations.size(), 0.0);
-//        mConcentrationSourcePerUnitVolume.resize(mrChannelLocations.size());
-//        mElementsEachChannel.resize(mrChannelLocations.size());
-//
-//        // Make a list of elements that we are going to say are source elements.
-//        for (typename TetrahedralMesh<SPACE_DIM,SPACE_DIM>::ElementIterator elt_iter = pMesh->GetElementIteratorBegin();
-//             elt_iter != pMesh->GetElementIteratorEnd();
-//             ++elt_iter)
-//        {
-//            // Decide whether this should be classed as a source element or not.
-//            c_vector<double, SPACE_DIM> location = elt_iter->CalculateCentroid();
-//
-//            for (unsigned channel=0; channel < mrChannelLocations.size(); channel++)
-//            {
-//                if (norm_2(location-mrChannelLocations[channel]) <= 3.0) // If centroid is within 3nm of channel say it is a source.
-//                {
-//                    //std::cout << "Source Element Recorded\n";
-//
-//                    // Make a note of this element
-//                    mElementsEachChannel[channel].push_back(elt_iter->GetIndex());
-//
-//                    // And add its volume to the total volume of source.
-//                    c_matrix<double, 3, 3> jacob;
-//                    double det;
-//                    elt_iter->CalculateJacobian(jacob, det);
-//                    source_volumes[channel] += elt_iter->GetVolume(det);
-//                    //std::cout << "Total source volume[" << channel << "] = " << source_volumes[channel] << "\n";
-//                }
-//            }
-//        }
-//        // This number is magical and should not be changed unless ion current changed.
-//        const double total_source_required = 2.5133e4; // Fiddly conversion from ionic current in single channel.
-//        for (unsigned channel=0; channel<mrChannelLocations.size(); channel++)
-//        {
-//            mConcentrationSourcePerUnitVolume[channel] = total_source_required / source_volumes[channel];
-//        }
-//    }
-//
-//    double ComputeConstantInUSourceTerm(const ChastePoint<3u>& rPoint,
-//                                        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
-//    {
-//        for (unsigned channel=0; channel<mElementsEachChannel.size(); channel++)
-//        {
-//            if (std::find(mElementsEachChannel[channel].begin(), mElementsEachChannel[channel].end(), pElement->GetIndex())
-//                != mElementsEachChannel[channel].end())
-//            {
-//                return mConcentrationSourcePerUnitVolume[channel];
-//            }
-//        }
-//        return 0.0;
-//    }
-//
-//    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<3u>& rPoint,
-//                                             Element<ELEMENT_DIM,SPACE_DIM>* pElement)
-//    {
-//        return 0.0;
-//    }
-//
-//    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<3u>& rPoint)
-//    {
-//        const double diffusion_constant = 300; // Units : (nm)^2/us
-//        return diffusion_constant*identity_matrix<double>(SPACE_DIM);
-//    }
-//};
-
 /**
- * This is a test to look at Calcium diffusion for Anant
+ * == Test class and method to look at Calcium diffusion ==
  */
 class TestCaDiffusion : public CxxTest::TestSuite
 {
 public:
     /*
-     * == Solving a linear parabolic PDE ==
+     * === Solving a linear parabolic PDE ===
      *
      * We will solve
      * du/dt = div(grad u) + u, in 3d, with boundary conditions Ca=0 on the boundary, and initial
@@ -385,18 +304,6 @@ public:
         solver.SetOutputToVtk(true);
         //solver.SetPrintingTimestepMultiple(10);
         Vec result = solver.Solve();
-
-//        std::cout << "Solving steady state elliptic PDE" << std::endl;
-//
-//        /* Let's also solve the equivalent static PDE, i.e. set du/dt=0, so 0=div(grad u) + u.  */
-//        PoissonEquationWithSourceTerm<3u,3u> static_pde(&mesh, channel_locations);
-//        SimpleLinearEllipticSolver<3u,3u> static_solver(&mesh, &static_pde, &bcc);
-//
-//        static_solver.InitialiseForSolve(result); // As an initial guess use the heat equation solution.
-//
-//        //static_solver.SetOutputDirectoryAndPrefix("CaDiffusion/steady_state","results");
-//        //static_solver.SetOutputToVtk(true);
-//        static_solver.Solve();
 
         // Write a copy of the mesh to examine in a different format.
         TrianglesMeshWriter<3,3> writer("CaDiffusion/mesh", "disc", false);
