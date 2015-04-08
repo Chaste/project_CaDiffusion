@@ -6,7 +6,7 @@ clear all
 % So
 R = sqrt(0.03/pi)
 
-N_sims = 100000;
+N_sims = 1000000;
 N_channels = 5;
 
 % Sampling in a circle
