@@ -33,14 +33,23 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/*
- * = Calcium diffusion from CRAC channels in a microdomain =
- *
- * Code to accompany the paper Samanta et al. 2015.
- */
-
 #ifndef TESTCADIFFUSION_HPP_
 #define TESTCADIFFUSION_HPP_
+
+/*
+ * [[PageOutline]]
+ *
+ * = Calcium diffusion from CRAC channels in an endoplasmic reticulum microdomain =
+ *
+ * Code to accompany the paper Samanta et al. 2015.
+ *
+ * == Code Walkthrough ==
+ *
+ * The following wiki page provides a walk-through of the Chaste code
+ * that was used to perform the simulations in this paper.
+ *
+ * First we include some header files:
+ */
 
 #include <cxxtest/TestSuite.h>
 
@@ -57,12 +66,12 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "PetscSetupAndFinalize.hpp"
 
 /*
- * == Set up a diffusion equation with a source term ==
+ * === Set up a diffusion equation with a source term ===
  *
  * d[Ca]/dt = D_Ca Laplacian([Ca]) + Q
  *
  * [Ca] in units of uM
- * D_Ca = 300 (nm)^2 / us
+ * D_Ca = 300 (nm)^2^/us
  * integral of Q per ion channel's worth of elements over which is to be applied = 2.5133e4 uM / us
  */
 template <unsigned SPACE_DIM>
@@ -123,8 +132,6 @@ public:
 
     }
 
-    // N.B. If you change this, then also change the method ComputeConstantInUSourceTerm
-    // in the PoissonEquationWithSourceTerm
     double ComputeSourceTerm(const ChastePoint<SPACE_DIM>& rPoint,
                              double u,
                              Element<SPACE_DIM,SPACE_DIM>* pElement)
@@ -140,10 +147,10 @@ public:
         return 0.0;
     }
 
-    // The Diffusion constant for calcium is 300 um^2 / s
-    // This is equivalent to
-    // 300 (nm)^2 / us
-    // N.B. If you change this, then also change the method ComputeConstantInUSourceTerm in the PoissonEquationWithSourceTerm
+    /* The Diffusion constant for calcium is 300 um^2^ / s
+     * This is equivalent to
+     * 300 (nm)^2^ / us
+     */
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& rPoint,
                                                                 Element<SPACE_DIM,SPACE_DIM>* pElement=NULL)
     {
@@ -157,19 +164,16 @@ public:
     }
 };
 
-/**
- * == Test class and method to look at Calcium diffusion ==
+/*
+ * === Test class and method to look at Calcium diffusion ===
  */
 class TestCaDiffusion : public CxxTest::TestSuite
 {
 public:
     /*
-     * === Solving a linear parabolic PDE ===
-     *
      * We will solve
      * du/dt = div(grad u) + u, in 3d, with boundary conditions Ca=0 on the boundary, and initial
-     * conditions Ca=0.
-     *
+     * conditions Ca=0.     *
      *
      * Our units throughout this are:
      * distance : nanometers nm
@@ -177,35 +181,39 @@ public:
      */
     void TestSolvingDiffusionEquationForCalcium() throw(Exception)
     {
+
         TetrahedralMesh<3,3> mesh;
 
+        /*
+         * Either a 3D Disc shaped thing, centred at (0,0,0), radius 10, and height 1.5.
+         * N.B. We're in slightly odd units of 10 nm or 1e-8 m (!)
+         *
+         * Note a coarse version of the mesh is provided to test simulations, but the ones in
+         * the paper were run on the refined version included here:
+         */
         bool disc = true;
-
         if (disc)
         {
-            /*
-             * Either a 3D Disc shaped thing, centred at (0,0,0), radius 10, and height 1.5.
-             * N.B. We're in slightly odd units of 10 nm or 1e-8 m (!)
-             */
+
             GmshMeshReader<3,3> gmsh_reader("projects/CaDiffusion/test/meshes/CaDiffusion.msh"); // for accurate solution
             //GmshMeshReader<3,3> gmsh_reader("projects/CaDiffusion/test/meshes/CaDiffusionCoarse.msh"); // for quick estimate
             mesh.ConstructFromMeshReader(gmsh_reader);
         }
+        /*
+         * Or a square slab of membrane we construct on the fly
+         *
+         * Create a 20 by 20 by 1.5 mesh in 3D, this time using the {{{ConstructRegularSlabMesh}}}
+         * method on the mesh. The first parameter is the cartesian space-step
+         * and the other three parameters are the width, height and depth of the mesh.
+         */
         else
         {
-            /*
-             * Or a square slab of membrane we construct on the fly
-             *
-             * Create a 20 by 20 by 1.5 mesh in 3D, this time using the {{{ConstructRegularSlabMesh}}}
-             * method on the mesh. The first parameter is the cartesian space-step
-             * and the other three parameters are the width, height and depth of the mesh.
-             */
             mesh.ConstructRegularSlabMesh(0.25, 20.0, 20.0, 1.5);
             mesh.Translate(-10.0,-10.0,0.0); // Centre it in x-y plane at origin
         }
         mesh.Scale(10,10,10); // To get into units of nm, radius 100nm, height 15nm.
 
-        // Create some ion channel locations
+        /* Create some ion channel locations */
         double z_location = 15.0; //nm - on the top / outer membrane.
         std::vector<c_vector<double, 3u> > channel_locations;
 
@@ -251,6 +259,7 @@ public:
             channel_locations.push_back(location);
         }
 
+        /* Create the PDE object (defined above) */
         DiffusionEquationWithSourceTerm<3u> pde(&mesh, channel_locations);
 
         /* Create a new boundary conditions container and specify u=0.0 on the boundary. */
@@ -302,7 +311,6 @@ public:
 
         solver.SetOutputDirectoryAndPrefix("CaDiffusion/time_dependent","results");
         solver.SetOutputToVtk(true);
-        //solver.SetPrintingTimestepMultiple(10);
         Vec result = solver.Solve();
 
         // Write a copy of the mesh to examine in a different format.
