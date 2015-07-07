@@ -4,11 +4,11 @@ projects/CaDiffusion/Summary.wiki
 edit that file, don't edit this page on trac!
 }}}
 
-= Calcium diffusion from CRAC channels in a microdomain  =
+= Ca^2+^ Channel Re-localization to Plasma-Membrane Microdomains Strengthens Activation of Ca^2+^-Dependent Nuclear Gene Expression =
 
 Welcome to the Chaste wiki.
 
-This section contains pages generated automatically from the source code accompanying Samanta et al. (2015).
+This section contains pages generated automatically from the source code accompanying [http://dx.doi.org/10.1016/j.celrep.2015.06.018 Samanta et al. (2015)].
 
 Before running these examples you will need to [wiki:InstallGuides/InstallGuide install Chaste's dependencies] 
 and the [http://www.cs.ox.ac.uk/chaste/download.html source code for version 3.3].

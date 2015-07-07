@@ -39,9 +39,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*
  * [[PageOutline]]
  *
- * = Calcium diffusion from CRAC channels in an endoplasmic reticulum microdomain =
+ * = Ca^2+^ Channel Re-localization to Plasma-Membrane Microdomains Strengthens Activation of Ca^2+^-Dependent Nuclear Gene Expression  =
  *
- * Code to accompany the paper Samanta et al. 2015.
+ * Code to accompany the paper [http://dx.doi.org/10.1016/j.celrep.2015.06.018 Samanta et al. 2015].
  *
  * == Code Walkthrough ==
  *
