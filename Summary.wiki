@@ -25,16 +25,19 @@ The steps required to reproduce the study are given in the following tutorial fi
 
 == Sample commands to run everything ==
 
-If you wish to install Chaste and this project direct from our repository, you may do so from the command line as follows:
+Either 
+ * Download Chaste 3.3 and this CaDiffusion project from [http://www.cs.ox.ac.uk/chaste/download.html the Chaste downloads page]. Unzip the Chaste source code and then unzip the `CaDiffusion` source code into `Chaste/projects/`.
+Or
+ * Install Chaste 3.3 and this project direct from our repository, you may do so from the command line as follows:
 {{{
 #!sh
 cd <path/to>
-svn checkout https://chaste.cs.ox.ac.uk/svn/chaste/trunk Chaste
+svn export --username anonymous --password <your email address (not stored)> --no-auth-cache https://chaste.cs.ox.ac.uk/svn/chaste/tags/release_3.3 Chaste
 cd Chaste/projects
-svn checkout https://chaste.cs.ox.ac.uk/svn/chaste/projects/CaDiffusion
+svn export --username anonymous --password <your email address (not stored)> --no-auth-cache https://chaste.cs.ox.ac.uk/svn/chaste/tags/CaDiffusion_release_3.3 CaDiffusion
 }}}
 
-To run the simulations, use:
+For either method, to run the simulations, use:
 {{{
 #!sh
 cd <path/to>/Chaste
