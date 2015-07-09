@@ -10,8 +10,11 @@ Welcome to the Chaste wiki.
 
 This section contains pages generated automatically from the source code accompanying [http://dx.doi.org/10.1016/j.celrep.2015.06.018 Samanta et al. (2015)].
 
+'''N.B.''' These instructions refer to Chaste 3.4, which hasn't been released yet! If you want to use this before it has, then please use the
+development version of the code.
+
 Before running these examples you will need to [wiki:InstallGuides/InstallGuide install Chaste's dependencies] 
-and the [http://www.cs.ox.ac.uk/chaste/download.html source code for version 3.3].
+and the [http://www.cs.ox.ac.uk/chaste/download.html source code for version 3.4].
 The easiest way to do this is using an Ubuntu machine (or an Ubuntu virtual machine) as discussed on InstallGuides/UbuntuPackage.
 Note that cardiac Chaste is not supported on Windows, so users of Windows will need to follow the virtual machine route.
 For manual installation of each dependency, on any version of Linux, see DeveloperInstallGuide.
@@ -26,15 +29,15 @@ The steps required to reproduce the study are given in the following tutorial fi
 == Sample commands to run everything ==
 
 Either 
- * Download Chaste 3.3 and this CaDiffusion project from [http://www.cs.ox.ac.uk/chaste/download.html the Chaste downloads page]. Unzip the Chaste source code and then unzip the `CaDiffusion` source code into `Chaste/projects/`.
+ * Download Chaste 3.4 and this CaDiffusion project from [http://www.cs.ox.ac.uk/chaste/download.html the Chaste downloads page]. Unzip the Chaste source code and then unzip the `CaDiffusion` source code into `Chaste/projects/`.
 Or
- * Install Chaste 3.3 and this project direct from our repository, you may do so from the command line as follows:
+ * Install Chaste 3.4 and this project direct from our repository, you may do so from the command line as follows:
 {{{
 #!sh
 cd <path/to>
-svn export --username anonymous --password <your email address (not stored)> --no-auth-cache https://chaste.cs.ox.ac.uk/svn/chaste/tags/release_3.3 Chaste
+svn export --username anonymous --password <your email address (not stored)> --no-auth-cache https://chaste.cs.ox.ac.uk/svn/chaste/tags/release_3.4 Chaste
 cd Chaste/projects
-svn export --username anonymous --password <your email address (not stored)> --no-auth-cache https://chaste.cs.ox.ac.uk/svn/chaste/tags/CaDiffusion_release_3.3 CaDiffusion
+svn export --username anonymous --password <your email address (not stored)> --no-auth-cache https://chaste.cs.ox.ac.uk/svn/chaste/tags/CaDiffusion_release_3.4 CaDiffusion
 }}}
 
 For either method, to run the simulations, use:
