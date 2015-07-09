@@ -35,3 +35,6 @@ Line Loop(32) = {12, 13, 14, 15};
 Plane Surface(32) = {32};
 Surface Loop(1) = {10, 32, 19, 23, 27, 31};
 Volume(1) = {1};
+
+Physical Volume(1) = {1};
+Physical Surface(2) = {10, 32, 19, 23, 27, 31};
