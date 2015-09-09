@@ -1,8 +1,8 @@
 close all
 clear all
 
-spacings = [6.3, 47.5, 88.5];
-linestyles = {'b','r','g'};
+spacings = [6.3, 9.6, 47.5, 88.5];
+linestyles = {'b','k','r','g'};
 
 
 figure
@@ -39,8 +39,8 @@ for spacing_idx = 1:length(spacings)
 
 end
 
-legend('6.3nm spacing, at ER','6.3nm spacing, at outer membrane','47.5nm spacing, at ER',...
-    '47.5nm spacing, at outer membrane','88.5nm spacing, at ER','88.5nm spacing, at outer membrane','Location','NorthEast')
+legend('6.3nm spacing, at ER','6.3nm spacing, at outer membrane','9.6nm spacing, at ER','9.6nm spacing, at outer membrane',...
+       '47.5nm spacing, at ER','47.5nm spacing, at outer membrane','88.5nm spacing, at ER','88.5nm spacing, at outer membrane','Location','NorthEast')
 xlabel('[Ca] (uM)','FontSize',14)
 ylabel('Proportion of membrane >= concentration (%)','FontSize',14)
 ylim([0 100])

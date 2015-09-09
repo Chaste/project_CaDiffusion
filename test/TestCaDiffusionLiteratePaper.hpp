@@ -220,9 +220,10 @@ public:
         // Create ion channels in a pentagon shape.
         {
             // 6.3 nm is the closest the channel pores could ever get from structures
+            // 9.6 nm is a value that was just published (Pemi et al. PNAS (2015) Nanoscale patterning of STIM1 and Orai1 during store-operated Ca entry)
             // 47.5 nm is the mean nearest neighbour
             // 88.5 nm is the mean between any two points (unlikely to be this spread).
-            double inter_channel_spacing = 88.5;
+            double inter_channel_spacing = 9.6;
             double pentagon_circumradius = (1.0/10.0)*(sqrt(50.0 + 10.0*sqrt(5.0)))*inter_channel_spacing;
             std::cout << "Circumradius = " << pentagon_circumradius << std::endl;
 
