@@ -10,9 +10,6 @@ Welcome to the Chaste wiki.
 
 This section contains pages generated automatically from the source code accompanying [http://dx.doi.org/10.1016/j.celrep.2015.06.018 Samanta et al. (2015)].
 
-'''N.B.''' These instructions refer to Chaste 3.4, which hasn't been released yet! If you want to use this before it has, then please use the
-development version of the code.
-
 Before running these examples you will need to [wiki:InstallGuides/InstallGuide install Chaste's dependencies] 
 and the [http://www.cs.ox.ac.uk/chaste/download.html source code for version 3.4].
 The easiest way to do this is using an Ubuntu machine (or an Ubuntu virtual machine) as discussed on InstallGuides/UbuntuPackage.
