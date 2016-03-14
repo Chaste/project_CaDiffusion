@@ -19,6 +19,12 @@ For manual installation of each dependency, on any version of Linux, see Develop
 The simulations featured in the paper supplement are explained and annotated below.
 For further information on using Chaste to solve these and related problems, see our [wiki:ChasteGuides extensive guide material].
 
+[[Image(https://i.creativecommons.org/l/by/4.0/88x31.png, link=http://creativecommons.org/licenses/by/4.0)]] This work is licensed under the Chaste BSD 3 clause licence and the [http://creativecommons.org/licenses/by/4.0/ Creative Commons Attribution 4.0 International License]. To comply with this licence, please cite the following papers if you re-use this code for an academic publication:
+
+ * K Samanta, P Kar, GR Mirams, AB Parekh (2015). Ca2+ channel re-localization to plasma membrane microdomains strengthens activation of Ca2+-dependent nuclear gene expression. Cell Reports 12(2), 203-216. [http://dx.doi.org/10.1016/j.celrep.2015.06.018 doi:10.1016/j.celrep.2015.06.018]. 
+
+ * GR Mirams, CJ Arthurs, MO Bernabeu, R Bordas, J Cooper, A Corrias, Y Davit, S-J Dunn, AG Fletcher, DG Harvey, ME Marsh, JM Osborne, P Pathmanathan, J Pitt-Francis, J Southern, N Zemzemi, DJ Gavaghan (2013). Chaste: an open source C++ library for computational physiology and biology. PLoS Computational Biology, 9(3), e1002970. [http://dx.doi.org/10.1371/journal.pcbi.1002970 doi:10.1371/journal.pcbi.1002970]. 
+
 == Diffusion study ==
 
 The steps required to reproduce the study are given in the following tutorial file: [wiki:./CaDiffusion C++ file for performing simulation].
