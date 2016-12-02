@@ -33,8 +33,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef TESTCADIFFUSION_HPP_
-#define TESTCADIFFUSION_HPP_
+#ifndef TESTCADIFFUSIONVARYCHANNELSANDFLUXES_HPP_
+#define TESTCADIFFUSIONVARYCHANNELSANDFLUXES_HPP_
 
 /*
  * [[PageOutline]]
@@ -53,6 +53,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <cxxtest/TestSuite.h>
 
+#include <boost/assign/list_of.hpp>
+
 #include "GmshMeshReader.hpp"
 #include "UblasIncludes.hpp"
 //#include "SimpleLinearEllipticSolver.hpp"
@@ -62,6 +64,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ConstBoundaryCondition.hpp"
 #include "OutputFileHandler.hpp"
 #include "RandomNumberGenerator.hpp"
+#include "CommandLineArguments.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 
@@ -124,12 +127,17 @@ public:
             }
         }
         // This number is magical and should not be changed unless ion current changed.
-        const double total_source_required = 2.5133e4; // Fiddly conversion from ionic current in single channel.
+        double total_source_required = 2.5133e4; // Fiddly conversion from ionic current in single channel.
+        
+        if (CommandLineArguments::Instance()->OptionExists("--low-current"))
+		{
+			total_source_required /= 1.8; // Another magic number from change in driving voltage from 180mV to 100mV.
+		}
+        
         for (unsigned channel=0; channel<mrChannelLocations.size(); channel++)
         {
             mConcentrationSourcePerUnitVolume[channel] = total_source_required / source_volumes[channel];
         }
-
     }
 
     double ComputeSourceTerm(const ChastePoint<SPACE_DIM>& rPoint,
@@ -181,9 +189,56 @@ public:
      */
     void TestSolvingDiffusionEquationForCalcium() throw(Exception)
     {
-
-        TetrahedralMesh<3,3> mesh;
-
+    	unsigned scenario = UNSIGNED_UNSET;
+		if (!CommandLineArguments::Instance()->OptionExists("--scenario"))
+		{
+			EXCEPTION("Please enter the command line argument '--scenario' options are 1--6.");
+		}
+		else
+		{
+			scenario = CommandLineArguments::Instance()->GetUnsignedCorrespondingToOption("--scenario");
+			if (scenario == 0u || scenario >= 7u)
+			{
+				EXCEPTION("'--scenario' options should be in the range 1--6.");
+			}
+		}
+		
+		/* 
+		 *  These scenarios are sketched out here:
+		 *
+		 *  Channels are arranged like this on a honeycomb pattern:
+		 *
+		 *  channel 2               channel 1
+		 *        --              --
+		 *          -- channel 0 --
+		 *        --              --
+		 *  channel 4               channel 3
+		 *
+		 *  Scenarios 1 and 2: 4 active channels
+		 *   - scenario 1: channel 0 closed; 1-4 open      (occurs 4 times due to symmetry)
+		 *   - scenario 2: channel 0, 2-4 open; 1 closed   (occurs once)
+		 *
+		 *  Scenarios 3-6: 2 active channels
+		 *   - scenario 3: 0 and 2 open                    (occurs 4 times due to symmetry)
+		 *   - scenario 4: 2 and 4 open                    (occurs twice)
+		 *   - scenario 5: 1 and 2 open                    (occurs twice)
+		 *   - scenario 6: 2 and 3 open                    (occurs twice)
+		 */
+		std::map<unsigned, std::list<unsigned> > map_from_scenario_to_included_channels;
+		std::list<unsigned> included_channels = boost::assign::list_of(1)(2)(3)(4);
+		map_from_scenario_to_included_channels[1] = included_channels;
+		included_channels = boost::assign::list_of(0)(2)(3)(4);
+		map_from_scenario_to_included_channels[2] = included_channels;
+		included_channels = boost::assign::list_of(0)(2);
+		map_from_scenario_to_included_channels[3] = included_channels;
+		included_channels = boost::assign::list_of(2)(4);
+		map_from_scenario_to_included_channels[4] = included_channels;
+		included_channels = boost::assign::list_of(1)(2);
+		map_from_scenario_to_included_channels[5] = included_channels;
+		included_channels = boost::assign::list_of(2)(3);
+		map_from_scenario_to_included_channels[6] = included_channels;
+		
+		TetrahedralMesh<3,3> mesh;
         /*
          * Either a 3D Disc shaped thing, centred at (0,0,0), radius 10, and height 1.5.
          * N.B. We're in slightly odd units of 10 nm or 1e-8 m (!)
@@ -194,7 +249,6 @@ public:
         bool disc = true;
         if (disc)
         {
-
             GmshMeshReader<3,3> gmsh_reader("projects/CaDiffusion/test/meshes/CaDiffusion.msh"); // for accurate solution
             //GmshMeshReader<3,3> gmsh_reader("projects/CaDiffusion/test/meshes/CaDiffusionCoarse.msh"); // for quick estimate
             mesh.ConstructFromMeshReader(gmsh_reader);
@@ -216,48 +270,58 @@ public:
         /* Create some ion channel locations */
         double z_location = 15.0; //nm - on the top / outer membrane.
         std::vector<c_vector<double, 3u> > channel_locations;
-
-        // Create ion channels in a pentagon shape.
+        
+        // Create ion channels on a honeycomb shape.
         {
-            // 6.3 nm is the closest the channel pores could ever get from structures
-            // 9.6 nm is a value that was just published (Pemi et al. PNAS (2015) Nanoscale patterning of STIM1 and Orai1 during store-operated Ca entry)
-            // 47.5 nm is the mean nearest neighbour
-            // 88.5 nm is the mean between any two points (unlikely to be this spread).
-            double inter_channel_spacing = 9.6;
-            double pentagon_circumradius = (1.0/10.0)*(sqrt(50.0 + 10.0*sqrt(5.0)))*inter_channel_spacing;
-            std::cout << "Circumradius = " << pentagon_circumradius << std::endl;
+            double inter_channel_spacing = 15.0; // nm - from MD Cahalan (2015) paper
 
-            // co-ordinates of a pentagon's vertices
-            double c1 = pentagon_circumradius*(cos(2.0*M_PI/5.0));
-            double c2 = pentagon_circumradius*(cos(M_PI/5.0));
-            double s1 = pentagon_circumradius*(sin(2.0*M_PI/5.0));
-            double s2 = pentagon_circumradius*(sin(4.0*M_PI/5.0));
+            // co-ordinates of a pentagon's vertices on a honeycomb grid since hex-symmetry in channel.
+            double y = inter_channel_spacing*(cos(M_PI/3.0));
+            double x = inter_channel_spacing*(sin(M_PI/3.0));
+            
+            std::list<unsigned> channels_to_include = map_from_scenario_to_included_channels[scenario];
 
             c_vector<double, 3u> location;
-            location[0] = pentagon_circumradius;
+            location[0] = 0.0;
             location[1] = 0.0;
             location[2] = z_location;
-            channel_locations.push_back(location);
+            if (std::find(channels_to_include.begin(), channels_to_include.end(), 0u) != channels_to_include.end())
+            {
+            	channel_locations.push_back(location);
+            }
+            
 
-            location[0] = c1;
-            location[1] = s1;
+            location[0] = x;
+            location[1] = y;
             location[2] = z_location;
-            channel_locations.push_back(location);
+            if (std::find(channels_to_include.begin(), channels_to_include.end(), 1u) != channels_to_include.end())
+            {
+            	channel_locations.push_back(location);
+            }
 
-            location[0] = -c2;
-            location[1] = s2;
+            location[0] = -x;
+            location[1] = y;
             location[2] = z_location;
-            channel_locations.push_back(location);
+            if (std::find(channels_to_include.begin(), channels_to_include.end(), 2u) != channels_to_include.end())
+            {
+            	channel_locations.push_back(location);
+            }
 
-            location[0] = -c2;
-            location[1] = -s2;
+            location[0] = x;
+            location[1] = -y;
             location[2] = z_location;
-            channel_locations.push_back(location);
+            if (std::find(channels_to_include.begin(), channels_to_include.end(), 3u) != channels_to_include.end())
+            {
+            	channel_locations.push_back(location);
+            }
 
-            location[0] = c1;
-            location[1] = -s1;
+            location[0] = -x;
+            location[1] = -y;
             location[2] = z_location;
-            channel_locations.push_back(location);
+            if (std::find(channels_to_include.begin(), channels_to_include.end(), 4u) != channels_to_include.end())
+            {
+            	channel_locations.push_back(location);
+            }
         }
 
         /* Create the PDE object (defined above) */
@@ -305,12 +369,28 @@ public:
 
         /* Next define the start time, end time, and timestep, and set them. */
         double t_start = 0; // micro seconds
-        double t_end = 1; // micro seconds
-        double dt = 0.001; // micro seconds
+        double t_end = 2; // micro seconds
+        
+        // For production runs
+        //double dt = 0.001; // micro seconds
+        
+        double dt = 0.01; // micro seconds
         solver.SetTimes(t_start, t_end);
         solver.SetTimeStep(dt);
 
-        solver.SetOutputDirectoryAndPrefix("CaDiffusion/time_dependent","results");
+		std::stringstream output_folder;
+		output_folder << "CaDiffusion/time_dependent_scenario_" << scenario << "_current_";
+		
+		if (CommandLineArguments::Instance()->OptionExists("--low-current"))
+		{
+			output_folder << "low";
+		}
+		else
+		{
+			output_folder << "normal";
+		}
+		
+        solver.SetOutputDirectoryAndPrefix(output_folder.str(),"results");
         solver.SetOutputToVtk(true);
         Vec result = solver.Solve();
 
@@ -320,8 +400,8 @@ public:
 
         /* All PETSc vectors should be destroyed when they are no longer needed. */
         PetscTools::Destroy(initial_condition);
-        PetscTools::Destroy(result);
+        PetscTools::Destroy(result);        
     }
 };
 
-#endif // TESTCADIFFUSION_HPP_
+#endif // TESTCADIFFUSIONVARYCHANNELSANDFLUXES_HPP_
